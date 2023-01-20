@@ -141,28 +141,42 @@ export default {
             })
         },
         add() {
-            addCourse(this.form).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '添加成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    addCourse(this.form).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '添加成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         update() {
-            updateCourse(this.form).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '修改成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    updateCourse(this.form).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '修改成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         handleDelete(row) {
             orderExist({

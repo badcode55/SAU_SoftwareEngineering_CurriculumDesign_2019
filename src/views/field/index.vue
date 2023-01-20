@@ -188,40 +188,52 @@ export default {
             });
         },
         add() {
-            const newForm = JSON.parse(JSON.stringify(this.form))
-            newForm.priceInfo = JSON.stringify(newForm.priceInfo)
-            // for(var i in newForm.priceInfo){
-            //     newForm.priceInfo=[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
-            //     newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
-            // }
-            addField(newForm).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '添加成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    const newForm = JSON.parse(JSON.stringify(this.form))
+                    newForm.priceInfo = JSON.stringify(newForm.priceInfo)
+                    addField(newForm).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '添加成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
+            
         },
         update() {
-            const newForm = JSON.parse(JSON.stringify(this.form))
-            newForm.priceInfo = JSON.stringify(newForm.priceInfo)
-            // for (var i in newForm.priceInfo) {
-            //     newForm.priceInfo[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
-            //     newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
-            // }
-            updateField(newForm).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '修改成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    const newForm = JSON.parse(JSON.stringify(this.form))
+                    newForm.priceInfo = JSON.stringify(newForm.priceInfo)
+                    // for (var i in newForm.priceInfo) {
+                    //     newForm.priceInfo[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
+                    //     newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
+                    // }
+                    updateField(newForm).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '修改成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
+            
         },
         handleDelete(row) {
             orderExist({

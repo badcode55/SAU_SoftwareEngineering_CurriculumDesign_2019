@@ -7,7 +7,7 @@
         </div>
         
         <el-table v-loading="listLoading" :data="list" style="width: 100%">
-            <el-table-column prop="name" label="名称" width="380">
+            <el-table-column prop="name" label="姓名" width="380">
                 <template slot-scope="scope">
                     {{ scope.row.name }}
                 </template>
@@ -41,7 +41,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible" >
-            <el-form ref="form" :model="form" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+            <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
                 <el-form-item label="姓名" prop="name">
                     <el-input v-model="form.name"></el-input>
                 </el-form-item>
@@ -97,28 +97,15 @@ export default {
                 create: 'Create'
             },
             rules: {
-                memberId: [
-                    { required: true, message: '请输入会员id', trigger: 'blur' }
+                name: [
+                    { required: true, message: '请输入姓名', trigger: 'blur' }
                 ],
-                coachId: [
-                    { required: true, message: '请输入教练id', trigger: 'blur' }
+                grade: [
+                    { required: true, message: '请选择等级', trigger: 'change' }
                 ],
-                fieldId: [
-                    { required: true, message: '请输入场地id', trigger: 'blur' }
-                ],
-                courseId: [
-                    { required: true, message: '请输入课程id', trigger: 'blur' }
-                ],
-                startDate: [
-                    { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-                ],
-                startTime: [
-                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
-                ],
-                endTime: [
-                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
-                ],
-
+                royaltyRatio: [
+                    { required: true, message: '请输入提成比例', trigger: 'blur' }
+                ]
             }
         }
     },
@@ -193,28 +180,42 @@ export default {
             })
         },
         add(){
-            addCoach(this.form).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '添加成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    addCoach(this.form).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '添加成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         update(){
-            updateCoach(this.form).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '修改成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    updateCoach(this.form).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '修改成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         handleDelete(row){
             orderExist({

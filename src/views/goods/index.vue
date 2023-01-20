@@ -169,28 +169,42 @@ export default {
             })
         },
         add() {
-            addGoods(this.form).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '添加成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    addGoods(this.form).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '添加成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         update() {
-            updateGoods(this.form).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '修改成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
-            })
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    updateGoods(this.form).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '修改成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         handleDelete(row) {
             deleteById(row).then(responce => {
@@ -240,17 +254,24 @@ export default {
             })
         },
         open() {
-            this.$confirm('需支付12.00元，请确认已付款后再点击确认', '付款', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'info'
-            }).then(() => {
-                this.toPay()
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消付款'
-                });
+            this.$refs['payForm'].validate((valid) => {
+                if (valid) {
+                    this.$confirm('需支付12.00元，请确认已付款后再点击确认', '付款', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'info'
+                    }).then(() => {
+                        this.toPay()
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消付款'
+                        });
+                    });
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
             });
         }
     }
