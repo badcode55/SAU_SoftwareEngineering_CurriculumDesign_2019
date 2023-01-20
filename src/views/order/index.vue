@@ -83,11 +83,11 @@
                 <el-form-item label="日期" prop="startDate">
                     <el-date-picker v-model="form.startDate" :disabled='show' type="date" placeholder="选择日期"></el-date-picker>
                 </el-form-item>
-                <el-form-item label="时间" prop="time">
-                    <el-time-select :picker-options="{start: '08:00',step: '00:30',end: '21:30'}" :disabled='show'  v-model="form.startTime" format="HH:mm" placeholder="选择日期"></el-time-select>
+                <el-form-item label="开始时间" prop="startTime">
+                    <el-time-select :picker-options="{ start: '08:00', step: '00:30', end: '21:30', maxTime: form.endTime }" :disabled='show'  v-model="form.startTime" format="HH:mm" placeholder="选择日期"></el-time-select>
                 </el-form-item>
                 <el-form-item label="结束时间" prop="endTime">
-                    <el-time-select :picker-options="{ start: '08:30', step: '00:30', end: '22:00', minTime: startTime }" :disabled='show' v-model="form.endTime" format="HH:mm" placeholder="选择日期"></el-time-select>
+                    <el-time-select :picker-options="{ start: '08:30', step: '00:30', end: '22:00', minTime: form.startTime }" :disabled='show' v-model="form.endTime" format="HH:mm" placeholder="选择日期"></el-time-select>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -178,20 +178,10 @@ export default {
             this.listLoading = false
         },
         handleSizeChange(val) {
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
+            this.fetchData()
         },
         handleCurrentChange(val) {
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
+            this.fetchData()
         },
         resetForm() {
             this.form = JSON.parse(JSON.stringify(this.initForm))
@@ -279,13 +269,8 @@ export default {
                         price: this.price
                     }
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         update() {
             const newForm = JSON.parse(JSON.stringify(this.form))
@@ -305,13 +290,8 @@ export default {
                         price: this.price
                     }
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         handleDelete(row) {
             deleteById(row).then(responce => {
@@ -321,19 +301,20 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.listLoading = true
+                getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
+                    this.list = response.data.page.records
+                    this.total = response.data.page.total
+                })
+                this.listLoading = false
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
+            
         },
         toPay(params) {
             const payment = {
                 id: undefined,
                 memberId: this.form.memberId,
-                info: params
+                info: JSON.stringify(params)
             }
             addPayment(payment).then(responce => {
                 this.dialogPayVisible = false

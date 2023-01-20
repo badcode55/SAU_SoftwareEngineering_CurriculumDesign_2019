@@ -145,12 +145,7 @@ export default {
             this.listLoading = false
         },
         handleCurrentChange(val) {
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
+            this.fetchData()
         },
         resetForm() {
             this.form = JSON.parse(JSON.stringify(this.initForm))
@@ -181,13 +176,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         update(){
             updateCoach(this.form).then(responce => {
@@ -198,13 +188,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         handleDelete(row){
             deleteById(row).then(responce=>{
@@ -214,13 +199,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         }
     }
 }

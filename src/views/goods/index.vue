@@ -143,8 +143,8 @@ export default {
         fetchData() {
             this.listLoading = true
             getList().then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
+                this.list = response.data.items
+                this.total = response.data.total
             })
             this.listLoading = false
         },
@@ -177,13 +177,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList().then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         update() {
             updateGoods(this.form).then(responce => {
@@ -194,13 +189,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList().then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         handleDelete(row) {
             deleteById(row).then(responce => {
@@ -210,13 +200,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList().then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         handleSelectionChange(val) {
             this.multipleSelection = val;
@@ -239,9 +224,9 @@ export default {
             const payment = {
                 id:undefined,
                 memberId:this.payForm.memberId,
-                info:{
-                    goods:this.payForm.goods
-                }
+                info: JSON.stringify({
+                    goods: this.payForm.goods
+                }) 
             }
             addPayment(payment).then(responce => {
                 this.dialogPayVisible = false

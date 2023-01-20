@@ -43,9 +43,12 @@
                 <el-form-item prop="priceInfo">
                     <div v-for="(item, index) in form.priceInfo" :key="'form'+index">
                         <el-form-item :label='"定价"+(index+1)' :prop="'priceInfo.'+index">
-                            <el-form-item :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
-                                <el-time-select v-if="index==0" v-model="form.priceInfo[index].startTime" placeholder="选择时间" :picker-options="{start: '08:00',step: '00:30',end: '21:30'}"
+                            <el-form-item v-if="index==0" :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
+                                <el-time-select v-model="form.priceInfo[index].startTime" placeholder="选择时间" :picker-options="{ start: '08:00', step: '00:30', end: '21:30', maxTime: form.priceInfo[index].endTime }"
                                     format="HH:mm"></el-time-select>
+                            </el-form-item>
+                            <el-form-item v-else :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
+                                <el-time-select v-model="form.priceInfo[index].startTime" placeholder="选择时间" :picker-options="{ start: form.priceInfo[index - 1].endTime, step: '00:30', end: '21:30', maxTime: form.priceInfo[index].endTime }" format="HH:mm"></el-time-select>
                             </el-form-item>
                             <el-form-item :prop="'priceInfo.' + index + '.endTime'" label="截止时间">
                                 <el-time-select v-model="form.priceInfo[index].endTime" placeholder="选择时间" :picker-options="{ start: '08:30', step: '00:30', end: '22:00', minTime: form.priceInfo[index].startTime }" format="HH:mm"></el-time-select>
@@ -114,25 +117,18 @@ export default {
             this.listLoading = true
             getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
                 this.list = response.data.page.records
+                for(let i in this.list){
+                    this.list[i].priceInfo = JSON.parse(this.list[i].priceInfo);
+                }
                 this.total = response.data.page.total
             })
             this.listLoading = false
         },
         handleSizeChange(val) {
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
+            this.fetchData()
         },
         handleCurrentChange(val) {
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
+            this.fetchData()
         },
         resetForm() {
             this.form = JSON.parse(JSON.stringify(this.initForm))
@@ -149,10 +145,10 @@ export default {
             // this.form = Object.assign({}, row) // copy obj
             this.form=JSON.parse(JSON.stringify(row))
             // this.form.startTime = new Date('2016-1-1 ' + this.form.startTime + ':00')
-            for (var i in this.form.priceInfo){
-                this.form.priceInfo[i].startTime = new Date('2016-1-1 ' + this.form.priceInfo[i].startTime + ':00');
-                this.form.priceInfo[i].endTime = new Date('2016-1-1 ' + this.form.priceInfo[i].endTime + ':00');
-            }
+            // for (var i in this.form.priceInfo){
+            //     this.form.priceInfo[i].startTime = new Date('2016-1-1 ' + this.form.priceInfo[i].startTime + ':00');
+            //     this.form.priceInfo[i].endTime = new Date('2016-1-1 ' + this.form.priceInfo[i].endTime + ':00');
+            // }
             // 封装一个函数返回当前的时分秒 格式 08: 08: 08
             // function getTime() {
             //     var times = new Date();
@@ -192,10 +188,11 @@ export default {
         },
         add() {
             const newForm = JSON.parse(JSON.stringify(this.form))
-            for(var i in newForm.priceInfo){
-                newForm.priceInfo[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
-                newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
-            }
+            newForm.priceInfo = JSON.stringify(newForm.priceInfo)
+            // for(var i in newForm.priceInfo){
+            //     newForm.priceInfo=[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
+            //     newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
+            // }
             addField(newForm).then(responce => {
                 this.dialogVisible = false
                 this.$notify({
@@ -204,20 +201,16 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         update() {
             const newForm = JSON.parse(JSON.stringify(this.form))
-            for (var i in newForm.priceInfo) {
-                newForm.priceInfo[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
-                newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
-            }
+            newForm.priceInfo = JSON.stringify(newForm.priceInfo)
+            // for (var i in newForm.priceInfo) {
+            //     newForm.priceInfo[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
+            //     newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
+            // }
             updateField(newForm).then(responce => {
                 this.dialogVisible = false
                 this.$notify({
@@ -226,13 +219,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         },
         handleDelete(row) {
             deleteById(row).then(responce => {
@@ -242,13 +230,8 @@ export default {
                     type: 'success',
                     duration: 2000
                 })
+                this.fetchData()
             })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
         }
     }
 }
