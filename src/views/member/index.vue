@@ -108,6 +108,7 @@
 
 <script>
 import { getList, addMember, updateMember, deleteById } from '@/api/member'
+import { orderExist } from '@/api/order'
 export default {
   data() {
     return {
