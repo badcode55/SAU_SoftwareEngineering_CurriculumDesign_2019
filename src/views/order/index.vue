@@ -69,25 +69,25 @@
             <el-form ref="form" :model="form" :roles="roles" label-position="left" label-width="70px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="会员id" prop="memberId">
-                    <el-input v-model="form.memberId" :disabled='show'></el-input>
+                    <el-input v-model.number="form.memberId" :disabled='show'></el-input>
                 </el-form-item>
                 <el-form-item label="场地id"  prop="fieldId">
-                    <el-input v-model="form.fieldId" :disabled='show'></el-input>
+                    <el-input v-model.number="form.fieldId" :disabled='show'></el-input>
                 </el-form-item>
                 <el-form-item v-if="show" label="课程id" prop="courseId">
-                    <el-input v-model="form.courseId"></el-input>
+                    <el-input v-model.number="form.courseId"></el-input>
                 </el-form-item>
                 <el-form-item v-if="show" label="教练id" prop="coachId">
-                    <el-input v-model="form.coachId"></el-input>
+                    <el-input v-model.number="form.coachId"></el-input>
                 </el-form-item>
                 <el-form-item label="日期" prop="startDate">
                     <el-date-picker v-model="form.startDate" :disabled='show' type="date" placeholder="选择日期"></el-date-picker>
                 </el-form-item>
-                <el-form-item label="开始时间" prop="startTime">
-                    <el-time-select :picker-options="{start: '08:00',step: '00:30',end: '21:30'}" :disabled='show'  v-model="form.startTime" type="time" format="HH:mm" placeholder="选择日期"></el-time-select>
+                <el-form-item label="时间" prop="time">
+                    <el-time-select :picker-options="{start: '08:00',step: '00:30',end: '21:30'}" :disabled='show'  v-model="form.startTime" format="HH:mm" placeholder="选择日期"></el-time-select>
                 </el-form-item>
                 <el-form-item label="结束时间" prop="endTime">
-                    <el-time-select :picker-options="{start: '08:30',step: '00:30',end: '22:00'}" :disabled='show' v-model="form.endTime" type="time" format="HH:mm" placeholder="选择日期"></el-time-select>
+                    <el-time-select :picker-options="{ start: '08:30', step: '00:30', end: '22:00', minTime: startTime }" :disabled='show' v-model="form.endTime" format="HH:mm" placeholder="选择日期"></el-time-select>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -112,28 +112,20 @@ export default {
             total: 0,
             initForm: {
                 id: undefined,
-                memberId:"",
-                memberName:"",
-                coachId:"",
-                coachName:"",
-                fieldId:"",
-                fieldName:"",
-                courseId:"",
-                courseName:"",
+                memberId: "",
+                coachId: "",
+                fieldId: "",
+                courseId: "",
                 startDate: "",
-                startTime:"",
-                endTime:""
+                startTime: "",
+                endTime: ""
             },
             form: {
                 id: undefined,
                 memberId: "",
-                memberName: "",
                 coachId: "",
-                coachName: "",
                 fieldId: "",
-                fieldName: "",
                 courseId: "",
-                courseName: "",
                 startDate:"",
                 startTime: "",
                 endTime: ""
@@ -182,7 +174,6 @@ export default {
             getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
                 this.list = response.data.page.records
                 this.total = response.data.page.pages
-                console.log(response.data)
             })
             this.listLoading = false
         },
@@ -215,19 +206,22 @@ export default {
             })
         },
         handleUpdate(row) {
-            if (row.courseId) {
+            console.log(row)
+            if (row.courseId!=null) {
                 this.$alert('已购买课程，无法编辑', '提示', {
                     confirmButtonText: '确定'
                 });
             }else{
                 this.show = true
                 this.form = JSON.parse(JSON.stringify(row))
-                if (this.form.startTime!=''){
-                    this.form.startTime = new Date('2016-01-01 ' + this.form.startTime + ':00')
-                }
-                if(this.form.endTime!=''){
-                    this.form.endTime = new Date('2016-01-01 ' + this.form.endTime + ':00')
-                }
+                this.courseId=null
+                this.coachId=null
+                // if (this.form.startTime!=''){
+                //     this.form.startTime = new Date('2016-01-01 ' + this.form.startTime + ':00')
+                // }
+                // if(this.form.endTime!=''){
+                //     this.form.endTime = new Date('2016-01-01 ' + this.form.endTime + ':00')
+                // }
                 this.dialogStatus = 'update'
                 this.dialogVisible = true
                 this.$nextTick(() => {
@@ -267,44 +261,37 @@ export default {
             return year + '-' + month + '-' + strDate
         },
         add() {
-            this.$refs[this.form].validate((valid) => {
-                if (valid) {
-                    const newForm = JSON.parse(JSON.stringify(this.form))
-                    console.log(newForm)
-                    newForm.startTime = this.getTime(new Date(newForm.startTime))
-                    newForm.endTime = this.getTime(new Date(newForm.endTime))
-                    newForm.startDate = this.getDate(new Date(newForm.startDate))
-                    addOrder(newForm).then(responce => {
-                        this.dialogVisible = false
-                        this.$notify({
-                            title: '成功',
-                            message: '添加成功',
-                            type: 'success',
-                            duration: 2000
-                        })
-                        this.toPay({
-                            order: {
-                                price: this.price
-                            }
-                        })
-                    })
-                    this.listLoading = true
-                    getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                        this.list = response.data.page.records
-                        this.total = response.data.page.total
-                    })
-                    this.listLoading = false
-                } else {
-                    console.log('error submit!!');
-                    return false;
-                }
-            });
+            const newForm = JSON.parse(JSON.stringify(this.form))
+            console.log(this.form)
+            newForm.startDate = newForm.startDate != "" ? this.getDate(new Date(newForm.startDate)) :""
+            // newForm.startTime = newForm.startTime != "" ? this.getTime(new Date('2016-01-01 '+newForm.startTime)):""
+            // newForm.endTime = newForm.endTime != "" ? this.getTime(new Date('2016-01-01 ' +newForm.endTime)):""
+            addOrder(newForm).then(responce => {
+                this.dialogVisible = false
+                this.$notify({
+                    title: '成功',
+                    message: '添加成功',
+                    type: 'success',
+                    duration: 2000
+                })
+                this.toPay({
+                    order: {
+                        price: this.price
+                    }
+                })
+            })
+            this.listLoading = true
+            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
+                this.list = response.data.page.records
+                this.total = response.data.page.total
+            })
+            this.listLoading = false
         },
         update() {
             const newForm = JSON.parse(JSON.stringify(this.form))
-            newForm.startTime = this.getTime(new Date(newForm.startTime))
-            newForm.endTime = this.getTime(new Date(newForm.endTime))
-            newForm.startDate = this.getDate(new Date(newForm.startDate))
+            newForm.startDate = newForm.startDate != "" ? this.getDate(new Date(newForm.startDate)) : ""
+            newForm.startTime = newForm.startTime != "" ? this.getTime(new Date('2016-01-01 ' + newForm.startTime)) : ""
+            newForm.endTime = newForm.endTime != "" ? this.getTime(new Date('2016-01-01 ' + newForm.endTime)) : ""
             updateOrder(newForm).then(responce => {
                 this.dialogVisible = false
                 this.$notify({
@@ -360,22 +347,29 @@ export default {
             })
         },
         open() {
-            this.$confirm('需支付12.00元，请确认已付款后再点击确认', '付款', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'info'
-            }).then(() => {
-                if (this.dialogStatus === 'create'){
-                    this.add();
-                }else{
-                    this.update();
-                }
+            this.$refs['form'].validate((valid) => {
+                if (valid) {
+                    this.$confirm('需支付12.00元，请确认已付款后再点击确认', '付款', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'info'
+                    }).then(() => {
+                        if (this.dialogStatus === 'create') {
+                            this.add();
+                        } else {
+                            this.update();
+                        }
 
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消付款'
-                });
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消付款'
+                        });
+                    });
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
             });
         }
     }

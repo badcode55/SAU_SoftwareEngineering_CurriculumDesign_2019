@@ -44,11 +44,11 @@
                     <div v-for="(item, index) in form.priceInfo" :key="'form'+index">
                         <el-form-item :label='"定价"+(index+1)' :prop="'priceInfo.'+index">
                             <el-form-item :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
-                                <el-time-picker v-model="form.priceInfo[index].startTime" placeholder="选择时间"
-                                    format="HH:mm"></el-time-picker>
+                                <el-time-select v-if="index==0" v-model="form.priceInfo[index].startTime" placeholder="选择时间" :picker-options="{start: '08:00',step: '00:30',end: '21:30'}"
+                                    format="HH:mm"></el-time-select>
                             </el-form-item>
                             <el-form-item :prop="'priceInfo.' + index + '.endTime'" label="截止时间">
-                                <el-time-picker v-model="form.priceInfo[index].endTime" placeholder="选择时间" format="HH:mm"></el-time-picker>
+                                <el-time-select v-model="form.priceInfo[index].endTime" placeholder="选择时间" :picker-options="{ start: '08:30', step: '00:30', end: '22:00', minTime: form.priceInfo[index].startTime }" format="HH:mm"></el-time-select>
                             </el-form-item>
                             <el-form-item :prop="'priceInfo.' + index + '.price'" label="价格">
                                 <el-input v-model="form.priceInfo[index].price" placeholder="输入定价"></el-input>
