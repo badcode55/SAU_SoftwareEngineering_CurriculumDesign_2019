@@ -66,7 +66,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
-            <el-form ref="form" :model="form" label-position="left" label-width="70px"
+            <el-form ref="form" :model="form" :roles="roles" label-position="left" label-width="70px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="会员id" prop="memberId">
                     <el-input v-model="form.memberId" :disabled='show'></el-input>
@@ -146,7 +146,31 @@ export default {
                 create: 'Create'
             },
             show:true,
-            price:'12.00'
+            price:'12.00',
+            rules: {
+                memberId: [
+                    { required: true, message: '请输入会员id', trigger: 'blur' }
+                ],
+                coachId: [
+                    { required: true, message: '请输入教练id', trigger: 'blur' }
+                ],
+                fieldId: [
+                    { required: true, message: '请输入场地id', trigger: 'blur' }
+                ],
+                courseId: [
+                    { required: true, message: '请输入课程id', trigger: 'blur' }
+                ],
+                startDate: [
+                    { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
+                ],
+                startTime: [
+                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+                ],
+                endTime: [
+                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+                ],
+                
+            }
         }
     },
     created() {
@@ -198,9 +222,12 @@ export default {
             }else{
                 this.show = true
                 this.form = JSON.parse(JSON.stringify(row))
-                console.log(this.form.startTime)
-                this.form.startTime = new Date('2016-01-01 ' + this.form.startTime + ':00')
-                this.form.endTime = new Date('2016-01-01 ' + this.form.endTime + ':00')
+                if (this.form.startTime!=''){
+                    this.form.startTime = new Date('2016-01-01 ' + this.form.startTime + ':00')
+                }
+                if(this.form.endTime!=''){
+                    this.form.endTime = new Date('2016-01-01 ' + this.form.endTime + ':00')
+                }
                 this.dialogStatus = 'update'
                 this.dialogVisible = true
                 this.$nextTick(() => {
@@ -240,30 +267,38 @@ export default {
             return year + '-' + month + '-' + strDate
         },
         add() {
-            const newForm = JSON.parse(JSON.stringify(this.form))
-            newForm.startTime = this.getTime(new Date(newForm.startTime))
-            newForm.endTime = this.getTime(new Date(newForm.endTime))
-            newForm.startDate = this.getDate(new Date(newForm.startDate))
-            addOrder(newForm).then(responce => {
-                this.dialogVisible = false
-                this.$notify({
-                    title: '成功',
-                    message: '添加成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.toPay({
-                    order:{
-                        price:this.price
-                    }
-                })
-            })
-            this.listLoading = true
-            getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
-                this.list = response.data.page.records
-                this.total = response.data.page.total
-            })
-            this.listLoading = false
+            this.$refs[this.form].validate((valid) => {
+                if (valid) {
+                    const newForm = JSON.parse(JSON.stringify(this.form))
+                    console.log(newForm)
+                    newForm.startTime = this.getTime(new Date(newForm.startTime))
+                    newForm.endTime = this.getTime(new Date(newForm.endTime))
+                    newForm.startDate = this.getDate(new Date(newForm.startDate))
+                    addOrder(newForm).then(responce => {
+                        this.dialogVisible = false
+                        this.$notify({
+                            title: '成功',
+                            message: '添加成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.toPay({
+                            order: {
+                                price: this.price
+                            }
+                        })
+                    })
+                    this.listLoading = true
+                    getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
+                        this.list = response.data.page.records
+                        this.total = response.data.page.total
+                    })
+                    this.listLoading = false
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         },
         update() {
             const newForm = JSON.parse(JSON.stringify(this.form))
