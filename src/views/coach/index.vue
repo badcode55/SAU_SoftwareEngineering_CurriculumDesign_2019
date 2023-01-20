@@ -69,6 +69,7 @@
 
 <script>
 import { deleteById, getList, addCoach, updateCoach } from '@/api/coach'
+import { orderExist } from '@/api/order'
 export default {
     data() {
         return {
@@ -101,9 +102,6 @@ export default {
                 ],
                 grade: [
                     { required: true, message: '请选择等级', trigger: 'change' }
-                ],
-                royaltyRatio: [
-                    { required: true, message: '请输入提成比例', trigger: 'blur' }
                 ]
             }
         }

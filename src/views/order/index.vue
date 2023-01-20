@@ -66,7 +66,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
-            <el-form ref="form" :model="form" :rules="rules" label-position="left" label-width="70px"
+            <el-form  ref="form" :model="form" :rules="rules" label-position="left" label-width="90px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="会员id" prop="memberId">
                     <el-input v-model.number="form.memberId" :disabled='show'></el-input>
@@ -139,30 +139,33 @@ export default {
             },
             show:true,
             price:'12.00',
-            rules: {
-                memberId: [
-                    { required: true, message: '请输入会员id', trigger: 'blur' }
-                ],
-                coachId: [
-                    { required: true, message: '请输入教练id', trigger: 'blur' }
-                ],
-                fieldId: [
-                    { required: true, message: '请输入场地id', trigger: 'blur' }
-                ],
-                courseId: [
-                    { required: true, message: '请输入课程id', trigger: 'blur' }
-                ],
-                startDate: [
-                    { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-                ],
-                startTime: [
-                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
-                ],
-                endTime: [
-                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
-                ],
-                
-            }
+          rules: {
+            memberId: [
+              { required: true, message: '请输入会员id', trigger: 'blur' },
+              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
+            ],
+            coachId: [
+              // { required: true, message: '请输入教练id', trigger: 'blur' },
+              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
+            ],
+            fieldId: [
+              { required: true, message: '请输入场地id', trigger: 'blur' },
+              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
+            ],
+            courseId: [
+              // { required: true, message: '请输入课程id', trigger: 'blur' },
+              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
+            ],
+            startDate: [
+              { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
+            ],
+            startTime: [
+              { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+            ],
+            endTime: [
+              { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+            ]
+          }
         }
     },
     created() {
