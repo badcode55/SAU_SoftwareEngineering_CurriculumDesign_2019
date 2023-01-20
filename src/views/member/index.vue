@@ -103,6 +103,7 @@
 
 <script>
 import { getList, addMember, updateMember, deleteById } from '@/api/member'
+import { orderExist } from '@/api/order'
 export default {
     data() {
         return {
@@ -213,15 +214,31 @@ export default {
             })
         },
         handleDelete(row) {
-            deleteById(row).then(responce => {
-                this.$notify({
-                    title: '成功',
-                    message: '删除成功',
-                    type: 'success',
-                    duration: 2000
-                })
-                this.fetchData()
+            orderExist({
+                flag: 1,
+                id: row.id
+            }).then(responce => {
+                if (responce.data.sum != 0) {
+                    this.$notify({
+                        title: '警告',
+                        message: '存在有效订单',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                } else {
+                    deleteById(row).then(responce => {
+                        this.$notify({
+                            title: '成功',
+                            message: '删除成功',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.fetchData()
+                    })
+                }
+
             })
+
         }
     }
 }

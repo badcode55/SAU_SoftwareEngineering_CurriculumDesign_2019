@@ -30,3 +30,17 @@ export function deleteById(params) {
         method: 'delete',
     })
 }
+
+/*
+   *  1 会员
+   * 2 教练
+   * 3 场地
+   * 4 课程
+   * */
+export function orderExist(params) {
+    return request({
+        url: '/order/exist',
+        method: 'get',
+        params
+    })
+}
