@@ -66,7 +66,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
-            <el-form ref="form" :model="form" :roles="roles" label-position="left" label-width="70px"
+            <el-form ref="form" :model="form" :rules="rules" label-position="left" label-width="70px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="会员id" prop="memberId">
                     <el-input v-model.number="form.memberId" :disabled='show'></el-input>
