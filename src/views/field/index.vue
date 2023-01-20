@@ -36,7 +36,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
-            <el-form ref="form" :model="form" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+            <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="form.name"></el-input>
                 </el-form-item>
@@ -107,6 +107,20 @@ export default {
             textMap: {
                 update: 'Edit',
                 create: 'Create'
+            },
+            rules: {
+                name: [
+                    { required: true, message: '请输入名称', trigger: 'blur' }
+                ],
+                startTime: [
+                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+                ],
+                endTime: [
+                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+                ],
+                price: [
+                    { required: true, message: '请输入价格', trigger: 'blur' }
+                ]
             }
         }
     },

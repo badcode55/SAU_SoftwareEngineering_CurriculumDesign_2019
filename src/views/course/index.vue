@@ -45,7 +45,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
-            <el-form ref="form" :model="form" label-position="left" label-width="70px"
+            <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="form.name"></el-input>
@@ -99,6 +99,17 @@ export default {
             textMap: {
                 update: 'Edit',
                 create: 'Create'
+            },
+            rules: {
+                name: [
+                    { required: true, message: '请输入课程名称', trigger: 'blur' }
+                ],
+                price: [
+                    { required: true, message: '请设置价格', trigger: 'blur' }
+                ],
+                bonus:[
+                    { type: 'number', message: '积分值必须为数字', trigger: 'blur' }
+                ]
             }
         }
     },

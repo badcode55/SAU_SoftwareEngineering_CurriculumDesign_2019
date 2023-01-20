@@ -51,7 +51,7 @@
             </el-row>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
-            <el-form ref="form" :model="form" label-position="left" label-width="70px"
+            <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="form.name"></el-input>
@@ -75,7 +75,7 @@
             </span>
         </el-dialog>
         <el-dialog title="购买商品" :visible.sync="dialogPayVisible">
-            <el-form ref="payForm" :model="payForm" label-position="left" label-width="120px" style="width: 400px; margin-left:50px;">
+            <el-form :rules="payRules" ref="payForm" :model="payForm" label-position="left" label-width="120px" style="width: 400px; margin-left:50px;">
                 <el-form-item label="会员id" prop="memberId">
                     <el-input v-model="payForm.memberId"></el-input>
                 </el-form-item>
@@ -133,6 +133,26 @@ export default {
                 id:undefined,
                 memberId:"",
                 goods:[]
+            },
+            rules: {
+                name: [
+                    { required: true, message: '请输入会员姓名', trigger: 'blur' }
+                ],
+                price: [
+                    { required: true, message: '请设置价格', trigger: 'blur' }
+                ],
+                stock: [
+                    { required: true, message: '请设置库存', trigger: 'blur' }
+                ],
+                bonus: [
+                    { type: 'number', message: '积分值必须为数字', trigger: 'blur' }
+                ]
+            },
+            payRules: {
+                memberId: [
+                    { required: true, message: '请输入会员id', trigger: 'blur' },
+                    { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
+                ]
             }
         }
     },
