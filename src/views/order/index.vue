@@ -81,7 +81,7 @@
                     <el-input v-model.number="form.coachId"></el-input>
                 </el-form-item>
                 <el-form-item label="日期" prop="startDate">
-                    <el-date-picker v-model="form.startDate" :disabled='show' type="date" placeholder="选择日期"></el-date-picker>
+                    <el-date-picker :picker-options="pickerOptions" v-model="form.startDate" :disabled='show' type="date" placeholder="选择日期"></el-date-picker>
                 </el-form-item>
                 <el-form-item label="开始时间" prop="startTime">
                     <el-time-select :picker-options="{ start: '08:00', step: '00:30', end: '21:30', maxTime: form.endTime }" :disabled='show'  v-model="form.startTime" format="HH:mm" placeholder="选择日期"></el-time-select>
@@ -110,6 +110,11 @@ export default {
             currentPage: 1,
             pageSize: 10,
             total: 0,
+            pickerOptions:{
+                disabledDate(time) {
+                    return time.getTime() < Date.now() - 24 * 3600 * 1000 || time.getTime() > Date.now() + 6*24*3600*1000;
+                }
+            },
             initForm: {
                 id: undefined,
                 memberId: "",
@@ -160,10 +165,10 @@ export default {
               { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
             ],
             startTime: [
-              { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+              { required: true, message: '请选择时间', trigger: 'change' }
             ],
             endTime: [
-              { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
+              { required: true, message: '请选择时间', trigger: 'change' }
             ]
           }
         }

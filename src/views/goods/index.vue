@@ -54,16 +54,17 @@
             <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="名称" prop="name">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.name" maxlength="10" show-word-limit></el-input>
                 </el-form-item>
                 <el-form-item label="价格" prop="price">
-                    <el-input v-model="form.price"></el-input>
+                    <el-input-number size="medium" :min="0" v-model="form.price" :precision="2" :step="0.1"
+                        :max="99999999"></el-input-number>
                 </el-form-item>
                 <el-form-item label="库存" prop="stock">
                     <el-input-number v-model="form.stock" :min="1" ></el-input-number>
                 </el-form-item>
                 <el-form-item label="积分值" prop="bonus">
-                    <el-input v-model="form.bonus"></el-input>
+                    <el-input-number v-model="form.bonus" :max="9999999999" :min="0"></el-input-number>
                 </el-form-item>
                 <el-form-item label="详情" prop="info">
                     <el-input type="textarea" :rows="2" v-model="form.info"></el-input>
@@ -77,7 +78,7 @@
         <el-dialog title="购买商品" :visible.sync="dialogPayVisible">
             <el-form :rules="payRules" ref="payForm" :model="payForm" label-position="left" label-width="120px" style="width: 400px; margin-left:50px;">
                 <el-form-item label="会员id" prop="memberId">
-                    <el-input v-model="payForm.memberId"></el-input>
+                    <el-input v-model.number="payForm.memberId"></el-input>
                 </el-form-item>
                 <el-form-item prop="goods" label="商品">
                     <div v-for="(item, index) in payForm.goods" :key="'payForm'+index">
@@ -137,15 +138,6 @@ export default {
             rules: {
                 name: [
                     { required: true, message: '请输入会员姓名', trigger: 'blur' }
-                ],
-                price: [
-                    { required: true, message: '请设置价格', trigger: 'blur' }
-                ],
-                stock: [
-                    { required: true, message: '请设置库存', trigger: 'blur' }
-                ],
-                bonus: [
-                    { type: 'number', message: '积分值必须为数字', trigger: 'blur' }
                 ]
             },
             payRules: {

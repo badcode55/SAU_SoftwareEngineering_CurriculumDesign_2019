@@ -62,17 +62,17 @@
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
             <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="110px" style="width: 400px; margin-left:50px;">
                 <el-form-item label="姓名" prop="name">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.name" maxlength="10" show-word-limit></el-input>
                 </el-form-item>
                 <el-form-item label="生日" prop="birthday">
                     <el-date-picker v-model="form.birthday" type="date" placeholder="选择日期"></el-date-picker>
                 </el-form-item>
-                <!-- <el-form-item label="积分" prop="point">
+                <el-form-item v-if="show" label="积分" prop="point">
                     <el-input v-model="form.point"></el-input>
                 </el-form-item>
-                <el-form-item label="提成" prop="royalty">
+                <el-form-item v-if="show" label="提成" prop="royalty">
                     <el-input v-model="form.royalty"></el-input>
-                </el-form-item> -->
+                </el-form-item>
                 <el-form-item label="等级" prop="grade">
                     <el-select v-model="form.grade" placeholder="请选择教练等级">
                         <el-option label="等级一" value="1"></el-option>
@@ -116,8 +116,8 @@ export default {
                 id: undefined,
                 name: "",
                 birthday: "",
-                point: "",
-                royalty: "",
+                // point: "",
+                // royalty: "",
                 grade: "",
                 cardType: ""
             },
@@ -125,8 +125,8 @@ export default {
                 id: undefined,
                 name: "",
                 birthday:"",
-                point: "",
-                royalty:"",
+                // point: "",
+                // royalty:"",
                 grade:"",
                 cardType:""
             },
@@ -149,7 +149,8 @@ export default {
                 cardType : [
                     { required: true, message: '请选择等级', trigger: 'change' }
                 ]
-            }
+            },
+            show:false
         }
     },
     created() {
@@ -174,6 +175,7 @@ export default {
             this.form = JSON.parse(JSON.stringify(this.initForm))
         },
         handleCreate() {
+            this.show=false
             this.resetForm()
             this.dialogStatus = 'create'
             this.dialogVisible = true
@@ -182,6 +184,7 @@ export default {
             })
         },
         handleUpdate(row) {
+            this.show = true
             this.form = JSON.parse(JSON.stringify(row))
             this.form.birthday = new Date(this.form.birthday+' 00:00:00')
             this.dialogStatus = 'update'
@@ -204,7 +207,7 @@ export default {
                 if (valid) {
                     const newForm = JSON.parse(JSON.stringify(this.form))
                     newForm.birthday = this.getDate(new Date(newForm.birthday))
-                    newForm.royalty = "0"
+                    // newForm.royalty = "0"
                     addMember(newForm).then(responce => {
                         this.dialogVisible = false
                         this.$notify({

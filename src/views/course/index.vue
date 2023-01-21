@@ -48,16 +48,16 @@
             <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px"
                 style="width: 400px; margin-left:50px;">
                 <el-form-item label="名称" prop="name">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.name" maxlength="10" show-word-limit></el-input>
                 </el-form-item>
                 <el-form-item label="价格" prop="price">
-                    <el-input v-model="form.price"></el-input>
+                    <el-input-number size="medium" v-model="form.price" :precision="2" :step="0.1" :max="99999999" :min="0"></el-input-number>
                 </el-form-item>
                 <el-form-item label="积分值" prop="bonus">
-                    <el-input v-model="form.bonus"></el-input>
+                    <el-input-number v-model="form.bonus" :max="9999999999" :min="0"></el-input-number>
                 </el-form-item>
                 <el-form-item label="详情" prop="info">
-                    <el-input type="textarea" :rows="2" v-model="form.info"></el-input>
+                    <el-input type="textarea" :rows="2" v-model="form.info" maxlength="200" show-word-limit></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -103,12 +103,6 @@ export default {
             rules: {
                 name: [
                     { required: true, message: '请输入课程名称', trigger: 'blur' }
-                ],
-                price: [
-                    { required: true, message: '请设置价格', trigger: 'blur' }
-                ],
-                bonus:[
-                    { type: 'number', message: '积分值必须为数字', trigger: 'blur' }
                 ]
             }
         }

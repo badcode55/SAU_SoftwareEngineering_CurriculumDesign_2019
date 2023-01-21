@@ -36,29 +36,29 @@
             </el-pagination>
         </div>
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
-            <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+            <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="90px" style="width: 400px; margin-left:50px;">
                 <el-form-item label="名称" prop="name">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.name" maxlength="10" show-word-limit></el-input>
                 </el-form-item>
                 <el-form-item prop="priceInfo">
-                    <div v-for="(item, index) in form.priceInfo" :key="'form'+index">
+                    <el-form-item v-for="(item, index) in form.priceInfo" :key="'form'+index">
                         <el-form-item :label='"定价"+(index+1)' :prop="'priceInfo.'+index">
-                            <el-form-item v-if="index==0" :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
+                            <el-form-item :rules="timeRules" v-if="index==0" :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
                                 <el-time-select v-model="form.priceInfo[index].startTime" placeholder="选择时间" :picker-options="{ start: '08:00', step: '00:30', end: '21:30', maxTime: form.priceInfo[index].endTime }"
                                     format="HH:mm"></el-time-select>
                             </el-form-item>
-                            <el-form-item v-else :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
+                            <el-form-item :rules="timeRules" v-else :prop="'priceInfo.' + index + '.startTime'" label="开始时间">
                                 <el-time-select v-model="form.priceInfo[index].startTime" placeholder="选择时间" :picker-options="{ start: form.priceInfo[index - 1].endTime, step: '00:30', end: '21:30', maxTime: form.priceInfo[index].endTime }" format="HH:mm"></el-time-select>
                             </el-form-item>
-                            <el-form-item :prop="'priceInfo.' + index + '.endTime'" label="截止时间">
+                            <el-form-item :rules="timeRules" :prop="'priceInfo.' + index + '.endTime'" label="截止时间">
                                 <el-time-select v-model="form.priceInfo[index].endTime" placeholder="选择时间" :picker-options="{ start: '08:30', step: '00:30', end: '22:00', minTime: form.priceInfo[index].startTime }" format="HH:mm"></el-time-select>
                             </el-form-item>
                             <el-form-item :prop="'priceInfo.' + index + '.price'" label="价格">
-                                <el-input v-model="form.priceInfo[index].price" placeholder="输入定价"></el-input>
+                                <el-input-number size="medium" v-model="form.priceInfo[index].price" :precision="2" :step="0.1" :max="99999999"></el-input-number>
                             </el-form-item>
                             <el-button @click.prevent="removeItem(item)">删除</el-button>
                         </el-form-item>
-                    </div>
+                    </el-form-item>
                 </el-form-item>
                 <el-form-item>
                     <el-button @click="addItem">新增定价</el-button>
@@ -78,6 +78,20 @@ import { getList, addField, updateField, deleteById } from '@/api/field'
 import { orderExist } from '@/api/order'
 export default {
     data() {
+        // var validatePrice = (rule, value, callback) => {
+        //     var regPos = /^\d+(\.\d+)?$/
+        //     var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/
+        //     if (regPos.test(value) || regNeg.test(value)) {
+        //         var str = value.split('.')[0];
+        //         if (str.length > 10) {
+        //             callback(new Error('整数部分不能超过十位'));
+        //         } else {
+        //             callback();
+        //         }
+        //     } else {
+        //         callback(new Error('请输入数值'));
+        //     }
+        // };
         return {
             list: null,
             listLoading: true,
@@ -111,17 +125,11 @@ export default {
             rules: {
                 name: [
                     { required: true, message: '请输入名称', trigger: 'blur' }
-                ],
-                startTime: [
-                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
-                ],
-                endTime: [
-                    { type: 'time', required: true, message: '请选择时间', trigger: 'change' }
-                ],
-                price: [
-                    { required: true, message: '请输入价格', trigger: 'blur' }
                 ]
-            }
+            },
+            timeRules:[
+                {required: true, message: '请选择时间', trigger: 'change' }
+            ]
         }
     },
     created() {
@@ -205,6 +213,25 @@ export default {
             this.$refs['form'].validate((valid) => {
                 if (valid) {
                     const newForm = JSON.parse(JSON.stringify(this.form))
+                    if(newForm.priceInfo.length==0){
+                        this.$message({
+                            message: '请设置定价规则',
+                            type: 'warning'
+                        });
+                        return false;
+                    }else{
+                        for(let i in newForm.priceInfo){
+                            if(i>0){
+                                if (Number(newForm.priceInfo[i - 1].endTime.split(':')[0]) > Number(newForm.priceInfo[i].startTime.split(':')[0])){
+                                    this.$message({
+                                        message: '定价规则冲突',
+                                        type: 'warning'
+                                    });
+                                    return false;
+                                }
+                            }
+                        }
+                    }
                     newForm.priceInfo = JSON.stringify(newForm.priceInfo)
                     addField(newForm).then(responce => {
                         this.dialogVisible = false
@@ -227,11 +254,26 @@ export default {
             this.$refs['form'].validate((valid) => {
                 if (valid) {
                     const newForm = JSON.parse(JSON.stringify(this.form))
+                    if (newForm.priceInfo.length == 0) {
+                        this.$message({
+                            message: '请设置定价规则',
+                            type: 'warning'
+                        });
+                        return false;
+                    } else {
+                        for (let i in newForm.priceInfo) {
+                            if (i > 0) {
+                                if (Number(newForm.priceInfo[i - 1].endTime.split(':')[0]) > Number(newForm.priceInfo[i].startTime.split(':')[0])) {
+                                    this.$message({
+                                        message: '定价规则冲突',
+                                        type: 'warning'
+                                    });
+                                    return false;
+                                }
+                            }
+                        }
+                    }
                     newForm.priceInfo = JSON.stringify(newForm.priceInfo)
-                    // for (var i in newForm.priceInfo) {
-                    //     newForm.priceInfo[i].startTime = this.getTime(new Date(newForm.priceInfo[i].startTime))
-                    //     newForm.priceInfo[i].endTime = this.getTime(new Date(newForm.priceInfo[i].endTime))
-                    // }
                     updateField(newForm).then(responce => {
                         this.dialogVisible = false
                         this.$notify({

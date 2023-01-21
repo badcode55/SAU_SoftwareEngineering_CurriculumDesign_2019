@@ -43,7 +43,7 @@
         <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible" >
             <el-form :rules="rules" ref="form" :model="form" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
                 <el-form-item label="姓名" prop="name">
-                    <el-input v-model="form.name"></el-input>
+                    <el-input v-model="form.name" maxlength="10" show-word-limit></el-input>
                 </el-form-item>
                 <el-form-item label="等级" prop="grade">
                     <el-select v-model="form.grade" placeholder="请选择教练等级">
@@ -55,7 +55,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="提成比例" prop="royaltyRatio">
-                    <el-input v-model="form.royaltyRatio"></el-input>
+                    <el-input maxlength="4" v-model="form.royaltyRatio"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -72,6 +72,25 @@ import { deleteById, getList, addCoach, updateCoach } from '@/api/coach'
 import { orderExist } from '@/api/order'
 export default {
     data() {
+        var validateRatio = (rule, value, callback) => {
+            if (value !== '') {
+                var regPos = /^\d+(\.\d+)?$/
+                var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/
+                if (regPos.test(value) || regNeg.test(value)) {
+                    var str = value.split('.')[0]
+                    if(Number(str)!=0){
+                        callback(new Error('请输入0到1之间的数'));
+                    }else{
+                        callback();
+                    }
+                } else {
+                    callback(new Error('请输入数值'));
+                }
+            } else {
+                
+                callback();
+            }
+        };
         return {
             list: null,
             listLoading: true,
@@ -102,6 +121,9 @@ export default {
                 ],
                 grade: [
                     { required: true, message: '请选择等级', trigger: 'change' }
+                ],
+                royaltyRatio:[
+                    { validator: validateRatio, trigger: 'blur' }
                 ]
             }
         }
