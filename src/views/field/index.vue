@@ -130,7 +130,8 @@ export default {
             timeRules:[
                 {required: true, message: '请选择时间', trigger: 'change' }
             ],
-            pageShow: true
+            pageShow: true,
+            fullOver: false
         }
     },
     created() {
@@ -217,11 +218,9 @@ export default {
         },
         validatePriceInfo(params){
             isFullOver(params).then(response=>{
-                if(response.data.fullOver){
-                    return true;
-                }
+               this.fullOver= response.data.fullOver
             })
-            return false;
+            return this.fullOver;
         },
         add() {
             this.$refs['form'].validate((valid) => {
