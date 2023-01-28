@@ -33,6 +33,14 @@ export function addField(data) {
     })
 }
 
+export function isFullOver(data) {
+    return request({
+        url: '/field/fullOver',
+        method: 'post',
+        data: data
+    })
+}
+
 export function updateField(data) {
     return request({
         url: '/field',

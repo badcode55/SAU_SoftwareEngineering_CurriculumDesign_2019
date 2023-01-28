@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { getList, addField, updateField, deleteById } from '@/api/field'
+import { getList, addField, updateField, deleteById, isFullOver } from '@/api/field'
 import { orderExist } from '@/api/order'
 export default {
     data() {
@@ -215,6 +215,14 @@ export default {
                 price: "",
             });
         },
+        validatePriceInfo(params){
+            isFullOver(params).then(response=>{
+                if(response.data.fullOver){
+                    return true;
+                }
+            })
+            return false;
+        },
         add() {
             this.$refs['form'].validate((valid) => {
                 if (valid) {
@@ -239,6 +247,13 @@ export default {
                         }
                     }
                     newForm.priceInfo = JSON.stringify(newForm.priceInfo)
+                    if(!this.validatePriceInfo(newForm)){
+                        this.$message({
+                            message: '请确保定价覆盖当天整个运营时间段(08:00-22:00)',
+                            type: 'warning'
+                        });
+                        return false
+                    }
                     addField(newForm).then(responce => {
                         this.dialogVisible = false
                         this.$notify({
@@ -280,6 +295,13 @@ export default {
                         }
                     }
                     newForm.priceInfo = JSON.stringify(newForm.priceInfo)
+                    if (!this.validatePriceInfo(newForm)) {
+                        this.$message({
+                            message: '请确保定价覆盖当天整个运营时间段(08:00-22:00)',
+                            type: 'warning'
+                        });
+                        return false
+                    }
                     updateField(newForm).then(responce => {
                         this.dialogVisible = false
                         this.$notify({
