@@ -9,6 +9,22 @@ export function getList(params) {
     })
 }
 
+export function getLikeList(params) {
+    return request({
+        url: '/field',
+        method: 'get',
+        params
+    })
+}
+
+export function isFieldExist(params) {
+    return request({
+        url: '/field/exist',
+        method: 'get',
+        params
+    })
+}
+
 export function addField(data) {
     return request({
         url: '/field',

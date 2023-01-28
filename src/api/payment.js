@@ -7,3 +7,11 @@ export function addPayment(data) {
         data: data
     })
 }
+
+export function getPaySum(data) {
+    return request({
+        url: '/payment/getPaySum',
+        method: 'post',
+        data:data
+    })
+}

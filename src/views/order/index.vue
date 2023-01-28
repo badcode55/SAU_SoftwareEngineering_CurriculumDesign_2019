@@ -60,7 +60,7 @@
             </el-table-column>
         </el-table>
         <div class="block">
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+            <el-pagination :hide-on-single-page="pageShow" @size-change="handleSizeChange" @current-change="handleCurrentChange"
                 :current-page="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
@@ -101,9 +101,81 @@
 
 <script>
 import { getList, addOrder, updateOrder, deleteById } from '@/api/order'
-import { addPayment } from '@/api/payment'
+import { addPayment ,getPaySum} from '@/api/payment'
+import { isCoachExist } from '@/api/coach'
+import { isCourseExist } from '@/api/course'
+import { isFieldExist } from '@/api/field'
+import { isMemberExist } from '@/api/member'
 export default {
     data() {
+        var validateCoach = (rule, value, callback) => {
+            if (value !== '') {
+                if(this.form.courseId===''){
+                    callback(new Error("课程id不能为空，请先输入课程id"))
+                }else{
+                    isCoachExist({
+                        id: value
+                    }).then(response => {
+                        if (!response.data.exist) {
+                            callback(new Error("教练不存在，请输入正确的id"))
+                        } else {
+                            callback();
+                        }
+                    })
+                }
+            } else {
+                callback();
+            }
+        };
+        var validateCourse = (rule, value, callback) => {
+            if (value !== '') {
+                if (this.form.coachId === '') {
+                    callback(new Error("教练id不能为空，请先输入教练id"))
+                }else{
+                    isCourseExist({
+                        id: value
+                    }).then(response => {
+                        if (!response.data.exist) {
+                            callback(new Error("课程不存在，请输入正确的id"))
+                        } else {
+                            callback();
+                        }
+                    })
+                }
+            } else {
+                callback();
+            }
+        };
+        var validateField = (rule, value, callback) => {
+            if (value !== '') {
+                isFieldExist({
+                    id: value
+                }).then(response => {
+                    if (!response.data.exist) {
+                        callback(new Error("场地不存在，请输入正确的id"))
+                    } else {
+                        callback();
+                    }
+                })
+            } else {
+                callback();
+            }
+        };
+        var validateMember = (rule, value, callback) => {
+            if (value !== '') {
+                isMemberExist({
+                    id: value
+                }).then(response => {
+                    if (!response.data.exist) {
+                        callback(new Error("会员不存在，请输入正确的id"))
+                    } else {
+                        callback();
+                    }
+                })
+            } else {
+                callback();
+            }
+        };
         return {
             list: null,
             listLoading: true,
@@ -143,34 +215,40 @@ export default {
                 create: 'Create'
             },
             show:true,
-            price:'12.00',
+            account:'12.00',
           rules: {
-            memberId: [
-              { required: true, message: '请输入会员id', trigger: 'blur' },
-              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
-            ],
-            coachId: [
-              // { required: true, message: '请输入教练id', trigger: 'blur' },
-              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
-            ],
-            fieldId: [
-              { required: true, message: '请输入场地id', trigger: 'blur' },
-              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
-            ],
-            courseId: [
-              // { required: true, message: '请输入课程id', trigger: 'blur' },
-              { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
-            ],
-            startDate: [
-              { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-            ],
-            startTime: [
-              { required: true, message: '请选择时间', trigger: 'change' }
-            ],
-            endTime: [
-              { required: true, message: '请选择时间', trigger: 'change' }
-            ]
-          }
+              memberId: [
+                  { required: true, message: '请输入会员id', trigger: 'blur' },
+                  { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' },
+                  { validator: validateMember, trigger: 'blur' }
+              ],
+              coachId: [
+                  // { required: true, message: '请输入教练id', trigger: 'blur' },
+                  { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' },
+                  { validator: validateCoach, trigger: 'blur' }
+              ],
+              fieldId: [
+                  { required: true, message: '请输入场地id', trigger: 'blur' },
+                  { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' },
+                  { validator: validateField, trigger: 'blur' }
+              ],
+              courseId: [
+                  // { required: true, message: '请输入课程id', trigger: 'blur' },
+                  { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' },
+                  { validator: validateCourse, trigger: 'blur' }
+              ],
+              startDate: [
+                  { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
+              ],
+              startTime: [
+                  { required: true, message: '请选择时间', trigger: 'change' }
+              ],
+              endTime: [
+                  { required: true, message: '请选择时间', trigger: 'change' }
+              ]
+            },
+            pageShow: true,
+            bonus:0
         }
     },
     created() {
@@ -181,7 +259,12 @@ export default {
             this.listLoading = true
             getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
                 this.list = response.data.page.records
-                this.total = response.data.page.pages
+                this.total = response.data.page.total
+                if (response.data.page.pages == 1) {
+                    this.pageShow = true
+                } else {
+                    this.pageShow = false
+                }
             })
             this.listLoading = false
         },
@@ -204,7 +287,6 @@ export default {
             })
         },
         handleUpdate(row) {
-            console.log(row)
             if (row.courseId!=null) {
                 this.$alert('已购买课程，无法编辑', '提示', {
                     confirmButtonText: '确定'
@@ -212,8 +294,11 @@ export default {
             }else{
                 this.show = true
                 this.form = JSON.parse(JSON.stringify(row))
-                this.courseId=null
-                this.coachId=null
+                this.form.courseId=null
+                this.form.coachId=null
+                if (this.form.startDate!=''){
+                    this.form.startDate = new Date(this.form.startDate + ' 00:00:00')
+                }
                 // if (this.form.startTime!=''){
                 //     this.form.startTime = new Date('2016-01-01 ' + this.form.startTime + ':00')
                 // }
@@ -242,13 +327,13 @@ export default {
             s = s < 10 ? '0' + s : s;
             return year + '-' + month + '-' + strDate + ' ' + h + ':' + m + ':' + s
         },
-        getTime(time) {
-            var h = time.getHours();
-            h = h < 10 ? '0' + h : h;
-            var m = time.getMinutes();
-            m = m < 10 ? '0' + m : m;
-            return h + ':' + m;
-        },
+        // getTime(time) {
+        //     var h = time.getHours();
+        //     h = h < 10 ? '0' + h : h;
+        //     var m = time.getMinutes();
+        //     m = m < 10 ? '0' + m : m;
+        //     return h + ':' + m;
+        // },
         getDate(date) {
             var year = date.getFullYear() // 获取年
             year = year < 10 ? '0' + year : year
@@ -260,7 +345,6 @@ export default {
         },
         add() {
             const newForm = JSON.parse(JSON.stringify(this.form))
-            console.log(this.form)
             newForm.startDate = newForm.startDate != "" ? this.getDate(new Date(newForm.startDate)) :""
             // newForm.startTime = newForm.startTime != "" ? this.getTime(new Date('2016-01-01 '+newForm.startTime)):""
             // newForm.endTime = newForm.endTime != "" ? this.getTime(new Date('2016-01-01 ' +newForm.endTime)):""
@@ -274,7 +358,7 @@ export default {
                 })
                 this.toPay({
                     order: {
-                        price: this.price
+                        account: this.account
                     }
                 })
                 this.fetchData()
@@ -283,8 +367,8 @@ export default {
         update() {
             const newForm = JSON.parse(JSON.stringify(this.form))
             newForm.startDate = newForm.startDate != "" ? this.getDate(new Date(newForm.startDate)) : ""
-            newForm.startTime = newForm.startTime != "" ? this.getTime(new Date('2016-01-01 ' + newForm.startTime)) : ""
-            newForm.endTime = newForm.endTime != "" ? this.getTime(new Date('2016-01-01 ' + newForm.endTime)) : ""
+            // newForm.startTime = newForm.startTime != "" ? this.getTime(new Date('2016-01-01 ' + newForm.startTime)) : ""
+            // newForm.endTime = newForm.endTime != "" ? this.getTime(new Date('2016-01-01 ' + newForm.endTime)) : ""
             updateOrder(newForm).then(responce => {
                 this.dialogVisible = false
                 this.$notify({
@@ -295,7 +379,8 @@ export default {
                 })
                 this.toPay({
                     course: {
-                        price: this.price
+                        courseId:this.form.courseId,
+                        account: this.account
                     }
                 })
                 this.fetchData()
@@ -322,6 +407,7 @@ export default {
             const payment = {
                 id: undefined,
                 memberId: this.form.memberId,
+                bonus: this.bonus,
                 info: JSON.stringify(params)
             }
             addPayment(payment).then(responce => {
@@ -338,23 +424,43 @@ export default {
         open() {
             this.$refs['form'].validate((valid) => {
                 if (valid) {
-                    this.$confirm('需支付12.00元，请确认已付款后再点击确认', '付款', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'info'
-                    }).then(() => {
-                        if (this.dialogStatus === 'create') {
-                            this.add();
-                        } else {
-                            this.update();
+                    var params = {}
+                    if (this.dialogStatus === 'create') {
+                        params = {
+                            order: {
+                                fieldId: this.form.fieldId,
+                                startTime: this.form.startTime,
+                                endTime: this.form.endTime
+                            }
                         }
+                    } else {
+                        params = {
+                            course:{
+                                courseId:this.form.courseId
+                            }
+                        }
+                    }
+                    getPaySum(params).then(responce=>{
+                        this.account = responce.data.account
+                        this.bonus = responce.data.bonus
+                        this.$confirm('需支付'+this.account+'元，请确认已付款后再点击确认', '付款', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'info'
+                        }).then(() => {
+                            if (this.dialogStatus === 'create') {
+                                this.add();
+                            } else {
+                                this.update();
+                            }
 
-                    }).catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '已取消付款'
+                        }).catch(() => {
+                            this.$message({
+                                type: 'info',
+                                message: '已取消付款'
+                            });
                         });
-                    });
+                    } )                   
                 } else {
                     console.log('error submit!!');
                     return false;

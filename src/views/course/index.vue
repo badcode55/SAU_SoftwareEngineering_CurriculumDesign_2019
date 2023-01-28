@@ -39,7 +39,7 @@
             </el-table-column>
         </el-table>
         <div class="block">
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+            <el-pagination :hide-on-single-page="pageShow" @size-change="handleSizeChange" @current-change="handleCurrentChange"
                 :current-page="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
@@ -104,7 +104,8 @@ export default {
                 name: [
                     { required: true, message: '请输入课程名称', trigger: 'blur' }
                 ]
-            }
+            },
+            pageShow: true
         }
     },
     created() {
@@ -116,6 +117,11 @@ export default {
             getList({ "pageNum": this.currentPage, "pageSize": this.pageSize }).then(response => {
                 this.list = response.data.page.records
                 this.total = response.data.page.total
+                if (response.data.page.pages == 1) {
+                    this.pageShow = true
+                } else {
+                    this.pageShow = false
+                }
             })
             this.listLoading = false
         },

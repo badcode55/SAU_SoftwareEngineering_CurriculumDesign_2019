@@ -83,7 +83,7 @@
                 <el-form-item prop="goods" label="商品">
                     <div v-for="(item, index) in payForm.goods" :key="'payForm'+index">
                         <el-form-item :prop="'goods.' + index + '.sum'" :label="item.goodsName">
-                            <el-input-number v-model="payForm.goods[index].sum" :min="1"></el-input-number>
+                            <el-input-number v-model="payForm.goods[index].sum" :min="1" :max="payForm.goods[index].stock"></el-input-number>
                         </el-form-item>
                     </div>
                 </el-form-item>
@@ -99,9 +99,25 @@
 
 <script>
 import { deleteById, getList, addGoods, updateGoods } from '@/api/goods'
-import { addPayment } from '@/api/payment'
+import { addPayment, getPaySum } from '@/api/payment'
+import { isMemberExist } from '@/api/member'
 export default {
     data() {
+        var validateMember = (rule, value, callback) => {
+            if (value !== '') {
+                isMemberExist({
+                    id: value
+                }).then(response => {
+                    if (!response.data.exist) {
+                        callback(new Error("会员不存在，请输入正确的id"))
+                    } else {
+                        callback();
+                    }
+                })
+            } else {
+                callback();
+            }
+        };
         return {
             list: null,
             listLoading: true,
@@ -133,6 +149,7 @@ export default {
             payForm:{
                 id:undefined,
                 memberId:"",
+                bonus:0,
                 goods:[]
             },
             rules: {
@@ -143,9 +160,11 @@ export default {
             payRules: {
                 memberId: [
                     { required: true, message: '请输入会员id', trigger: 'blur' },
-                    { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' }
+                    { type: 'number', min: 1, max: 9999999999, message: '请输入长度在 1 到 10 个的数字', trigger: 'blur' },
+                    { validator: validateMember, trigger: 'blur' }
                 ]
-            }
+            },
+            account:''
         }
     },
     created() {
@@ -156,7 +175,6 @@ export default {
             this.listLoading = true
             getList().then(response => {
                 this.list = response.data.items
-                this.total = response.data.total
             })
             this.listLoading = false
         },
@@ -232,16 +250,18 @@ export default {
         handleSelectionChange(val) {
             this.multipleSelection = val;
             this.payForm.goods=[]
+            this.payForm.bonus=0
             for(var i in val){
                 this.payForm.goods.push({
                     goodsId:val[i].id,
                     goodsName:val[i].name,
                     sum:1,
-                    price:val[i].price
+                    price:val[i].price,
+                    stock:val[i].stock,
+                    bonus:val[i].bonus
                 })
             }
             this.len = val.length;
-            console.log(this.payForm)
         },
         handlePay(){
             this,this.dialogPayVisible=true
@@ -250,6 +270,7 @@ export default {
             const payment = {
                 id:undefined,
                 memberId:this.payForm.memberId,
+                bonus: this.payForm.bonus,
                 info: JSON.stringify({
                     goods: this.payForm.goods
                 }) 
@@ -268,18 +289,25 @@ export default {
         open() {
             this.$refs['payForm'].validate((valid) => {
                 if (valid) {
-                    this.$confirm('需支付12.00元，请确认已付款后再点击确认', '付款', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'info'
-                    }).then(() => {
-                        this.toPay()
-                    }).catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '已取消付款'
+                    getPaySum({
+                        goods: this.payForm.goods
+                    }).then(responce => {
+                        this.account = responce.data.account
+                        this.payForm.bonus = responce.data.bonus
+                        this.$confirm('需支付'+this.account+'元，请确认已付款后再点击确认', '付款', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'info'
+                        }).then(() => {
+
+                            this.toPay()
+                        }).catch(() => {
+                            this.$message({
+                                type: 'info',
+                                message: '已取消付款'
+                            });
                         });
-                    });
+                    })
                 } else {
                     console.log('error submit!!');
                     return false;

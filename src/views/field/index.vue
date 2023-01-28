@@ -30,7 +30,7 @@
             </el-table-column>
         </el-table>
         <div class="block">
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+            <el-pagination :hide-on-single-page="pageShow" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
                 :page-sizes="[10, 20, 30, 40]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
                 :total="total">
             </el-pagination>
@@ -129,7 +129,8 @@ export default {
             },
             timeRules:[
                 {required: true, message: '请选择时间', trigger: 'change' }
-            ]
+            ],
+            pageShow: true
         }
     },
     created() {
@@ -144,6 +145,11 @@ export default {
                     this.list[i].priceInfo = JSON.parse(this.list[i].priceInfo);
                 }
                 this.total = response.data.page.total
+                if (response.data.page.pages == 1) {
+                    this.pageShow = true
+                } else {
+                    this.pageShow = false
+                }
             })
             this.listLoading = false
         },

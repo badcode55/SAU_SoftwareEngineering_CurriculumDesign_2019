@@ -8,6 +8,22 @@ export function getList(params) {
     })
 }
 
+export function getLikeList(params) {
+    return request({
+        url: '/coach',
+        method: 'get',
+        params
+    })
+}
+
+export function isCoachExist(params) {
+    return request({
+        url: '/coach/exist',
+        method: 'get',
+        params
+    })
+}
+
 export function addCoach(data) {
     return request({
         url: '/coach',

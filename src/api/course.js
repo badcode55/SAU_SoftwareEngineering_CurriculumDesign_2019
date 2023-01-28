@@ -8,6 +8,22 @@ export function getList(params) {
     })
 }
 
+export function getLikeList(params) {
+    return request({
+        url: '/course',
+        method: 'get',
+        params
+    })
+}
+
+export function isCourseExist(params) {
+    return request({
+        url: '/course/exist',
+        method: 'get',
+        params
+    })
+}
+
 export function addCourse(data) {
     return request({
         url: '/course',
