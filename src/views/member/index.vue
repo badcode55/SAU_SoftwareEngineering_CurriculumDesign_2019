@@ -74,7 +74,7 @@
                     <el-input v-model="form.royalty"></el-input>
                 </el-form-item>
                 <el-form-item label="等级" prop="grade">
-                    <el-select v-model="form.grade" placeholder="请选择教练等级">
+                    <el-select v-model="form.grade" placeholder="请选择会员等级">
                         <el-option label="等级一" value="1"></el-option>
                         <el-option label="等级二" value="2"></el-option>
                         <el-option label="等级三" value="3"></el-option>
@@ -83,7 +83,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="会员卡类型" prop="cardType">
-                    <el-select v-model="form.cardType" placeholder="请选择教练等级">
+                    <el-select v-model="form.cardType" placeholder="请选择会员等级">
                         <el-option label="类型一" value="1"></el-option>
                         <el-option label="类型二" value="2"></el-option>
                         <el-option label="类型三" value="3"></el-option>
@@ -172,9 +172,11 @@ export default {
             this.listLoading = false
         },
         handleSizeChange(val) {
+            this.pageSize=val
             this.fetchData()
         },
         handleCurrentChange(val) {
+            this.currentPage=val
             this.fetchData()
         },
         resetForm() {
