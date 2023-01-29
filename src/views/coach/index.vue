@@ -174,6 +174,7 @@ export default {
             this.listLoading = false
         },
         handleSizeChange(val) {
+            this.pageSize = val
             this.listLoading = true
             getList({"pageNum":this.currentPage,"pageSize":this.pageSize}).then(response => {
                 this.list = response.data.page.records
@@ -182,6 +183,7 @@ export default {
             this.listLoading = false
         },
         handleCurrentChange(val) {
+            this.currentPage = val
             this.fetchData()
         },
         resetForm() {
