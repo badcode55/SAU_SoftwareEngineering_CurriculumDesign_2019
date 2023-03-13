@@ -269,9 +269,11 @@ export default {
             this.listLoading = false
         },
         handleSizeChange(val) {
+            this.pageSize = val
             this.fetchData()
         },
         handleCurrentChange(val) {
+            this.currentPage = val
             this.fetchData()
         },
         resetForm() {
